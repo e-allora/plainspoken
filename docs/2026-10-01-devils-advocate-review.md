@@ -128,3 +128,23 @@ Verification: typecheck ✅ · lint ✅ · unit 40/40 ✅ · e2e 18/18 ✅ (Chro
 - **Not used, because unverified this session:** the NYT v. OpenAI log-preservation order, and whether consumer AI apps train on chats by default. Two web searches were blocked by a permission check.
 
 Verification: typecheck ✅ · lint ✅ · unit 50/50 ✅ · build ✅ · e2e 26/26 ✅ (desktop + mobile).
+
+---
+
+## Congruence pass: 2026-10-01 15:50 EDT (PR #4, carried into PR #5)
+
+Rob's standard: every transparency claim on his sites must be backed by evidence a stranger can check, because if any of them get attention, they'll be scrutinized. The template is aiconsumerrights.org's "How this site works" page. The cross-site report is kept outside the repo, in Rob's project folder.
+
+- **About → "How this site works":**
+  - who runs it (no money, ads, tracking, or analytics)
+  - every service and what it sees (Vercel sees IPs; the IP is used in memory for the 15/hour cap; OpenRouter zero retention is worded as a request we can't inspect; the "Open in" links send the prompt to that company)
+  - what we keep (nothing)
+  - how it was built (models per the commit records: Opus 4.8 / Fable 5.1 / Opus 5.5)
+  - what isn't finished
+  - how to report a mistake (GitHub issues, confirmed enabled)
+  - The footer links to it.
+- **Licenses:** code MIT; lesson and page writing CC BY 4.0, the same split as aiconsumerrights.
+- **Prompt Cowboy** is credited as the inspiration.
+- **Three DataCamp articles are no longer tracked** (`LLMops.md`, `MLopsTools.md`, `integration-testing.md`). They're DataCamp's copyrighted work and must not look like they're under this repo's MIT license. They're kept on disk and ignored by git. They remain in early history, with their authors credited. No history was rewritten.
+
+Verification (PR #5 branch, after the merge): typecheck ✅ · lint ✅ · unit 50/50 ✅ · build ✅ · e2e 28/28 ✅
