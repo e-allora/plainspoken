@@ -69,8 +69,13 @@ Written as dated documents; the trail of changes lives in the record, not in edi
 | [Deployment](docs/2026-07-14-deployment.md) | Vercel, Cloudflare, headers, renaming |
 | [Review, 2026-10-01](docs/2026-10-01-devils-advocate-review.md) | Critical review: zero retention, single model, honesty rules, what's next |
 
-The original brief is `Breakdown for the AGENTS.txt`. Reference material sits alongside
-it at the repository root.
+The original brief is `Breakdown for the AGENTS.txt`. It names Prompt Cowboy
+(promptcowboy.ai) as the inspiration; Plainspoken's design and code are its own.
+
+Three DataCamp articles used as reference during the build (`LLMops.md`, `MLopsTools.md`,
+`integration-testing.md`) were removed from the repository on 2026-10-01. They are
+DataCamp's copyrighted work, not ours to publish, and the MIT license never covered
+them. They remain in the early commit history, with their authors credited.
 
 ## Status
 
@@ -79,4 +84,6 @@ by design. The original brief's auth and usage logging are not planned.
 
 ## License
 
-MIT. See [LICENSE](LICENSE). Free to use, copy, and adapt.
+Code: MIT. See [LICENSE](LICENSE). Free to use, copy, and adapt.
+
+Writing (the lessons in `lib/lessons.ts` and the page text): [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Reuse it with credit.

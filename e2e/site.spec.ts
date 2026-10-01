@@ -150,6 +150,16 @@ test.describe("learn", () => {
     await page.goto("/about");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("About");
   });
+
+  test("about says how the site works and how to report a mistake", async ({ page }) => {
+    await page.goto("/about#how-it-works");
+    await expect(page.getByRole("heading", { name: "How this site works" })).toBeVisible();
+    await expect(page.getByText(/sees each visit, including IP addresses/)).toBeVisible();
+    await expect(page.getByRole("link", { name: "Open an issue on GitHub" })).toHaveAttribute(
+      "href",
+      /github\.com\/e-allora\/plainspoken\/issues$/,
+    );
+  });
 });
 
 test.describe("accessibility basics", () => {
