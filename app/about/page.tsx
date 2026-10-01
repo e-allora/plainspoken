@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { LESSON_COUNT_TITLE } from "@/lib/lessons";
+import { RATE_LIMIT_CONFIG } from "@/lib/rate-limit";
 import { SITE } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -35,10 +37,14 @@ export default function About() {
           </dt>
           <dd className="mt-2 leading-relaxed text-ink-soft">
             It&apos;s sent to an AI model to be rewritten, and the result comes
-            back to you. There are no accounts, so nothing is tied to your name.
-            Even so — don&apos;t paste in passwords, card numbers, or anything
-            you&apos;d mind a stranger reading. That&apos;s good practice with
-            any AI tool, not just this one.
+            back to you. This site doesn&apos;t save it. We also ask the service
+            in between, OpenRouter, to use only providers that have a
+            zero-data-retention policy — that&apos;s a promise those companies
+            make, which we can ask for but can&apos;t inspect. There are no
+            accounts, so nothing is tied to your name. Even so — don&apos;t
+            paste in passwords, card numbers, or anything you&apos;d mind a
+            stranger reading. That&apos;s good practice with any AI tool, not
+            just this one.
           </dd>
         </div>
 
@@ -96,9 +102,9 @@ export default function About() {
             )}{" "}
             working with Claude Code, an AI coding tool from Anthropic. The
             person decided what it should do and how it should treat you; the
-            AI wrote most of the code. The rewrites themselves come from AI
-            models made by Anthropic, Google, and Mistral, reached through a
-            service called OpenRouter. The code is public at{" "}
+            AI wrote most of the code. The rewrites themselves come from Claude
+            Haiku, an AI model made by Anthropic, reached through a service
+            called OpenRouter. The code is public at{" "}
             <a href={SITE.sourceUrl} className="text-pen underline underline-offset-4">
               GitHub
             </a>
@@ -107,13 +113,170 @@ export default function About() {
         </div>
       </dl>
 
+      <section
+        id="how-it-works"
+        aria-labelledby="how-heading"
+        className="mt-16 scroll-mt-6 border-t border-desk-deep pt-10"
+      >
+        <h2
+          id="how-heading"
+          className="font-display text-(length:--text-title) leading-tight font-semibold text-ink"
+        >
+          How this site works
+        </h2>
+        <p className="mt-4 leading-relaxed text-ink-soft">
+          This site asks you to trust it with your words, so here is how it
+          works, in plain words, including what isn&apos;t finished.
+        </p>
+
+        <h3 className="mt-8 font-body font-bold text-ink">Who runs it</h3>
+        <p className="mt-2 leading-relaxed text-ink-soft">
+          Robert Sweetman, on his own. No money, sponsors, or investors are
+          behind it. No ads, no tracking, no analytics.
+        </p>
+
+        <h3 className="mt-8 font-body font-bold text-ink">
+          Services it uses, and what each one sees
+        </h3>
+        <ul className="mt-2 list-disc space-y-2 pl-5 leading-relaxed text-ink-soft">
+          <li>
+            <strong className="text-ink">Vercel</strong> hosts the site. It sees
+            each visit, including IP addresses, in short-term logs.
+          </li>
+          <li>
+            <strong className="text-ink">This site</strong> uses your IP address,
+            in memory only, to cap rewrites at {RATE_LIMIT_CONFIG.MAX_REQUESTS} an
+            hour. It isn&apos;t saved.
+          </li>
+          <li>
+            <strong className="text-ink">OpenRouter</strong> passes your words to
+            Claude Haiku, an Anthropic model. We ask OpenRouter to use only
+            providers with a zero-data-retention policy. That&apos;s a promise
+            those companies make; we can ask for it but can&apos;t inspect it.
+          </li>
+          <li>
+            <strong className="text-ink">&ldquo;Open in ChatGPT&rdquo; and
+            &ldquo;Open in Claude&rdquo;</strong> put your finished prompt in the
+            link, so it goes to that company under its own rules.
+          </li>
+          <li>
+            <strong className="text-ink">GitHub</strong> stores the public code.
+          </li>
+        </ul>
+
+        <h3 className="mt-8 font-body font-bold text-ink">What we keep</h3>
+        <p className="mt-2 leading-relaxed text-ink-soft">
+          Nothing. There are no accounts and no database. Your prompt and its
+          rewrite aren&apos;t saved, and blanks you fill in stay in your browser.
+        </p>
+
+        <h3 className="mt-8 font-body font-bold text-ink">How it was built</h3>
+        <p className="mt-2 leading-relaxed text-ink-soft">
+          Robert decided what it does and how it treats you. Claude wrote most
+          of the code with him in Claude Code, Anthropic&apos;s coding tool,
+          using the newest model available each time: Claude Opus 4.8 (July
+          2026), Claude Fable 5.1 (September), and Claude Opus 5.5 (October),
+          according to the project&apos;s records. The code is MIT-licensed. The
+          lessons and page writing are free to reuse with credit, under CC BY
+          4.0.
+        </p>
+        <p className="mt-3 leading-relaxed text-ink-soft">
+          The idea was inspired by{" "}
+          <a
+            href="https://promptcowboy.ai"
+            rel="noopener noreferrer"
+            className="text-pen underline underline-offset-4"
+          >
+            Prompt Cowboy
+          </a>
+          . Plainspoken&apos;s design and code are its own.
+        </p>
+
+        <h3 className="mt-8 font-body font-bold text-ink">
+          What isn&apos;t finished
+        </h3>
+        <ul className="mt-2 list-disc space-y-2 pl-5 leading-relaxed text-ink-soft">
+          <li>
+            No lawyer, teacher, or other expert has reviewed the lessons yet.
+            Lessons that make legal points link their sources so you can check
+            them.
+          </li>
+          <li>
+            Rewrites come from an AI and can be wrong. Read yours before you use
+            it.
+          </li>
+          <li>
+            The rewriter answers in your language, but the site&apos;s own pages
+            are only in English.
+          </li>
+          <li>
+            The hourly cap is counted per server, so it&apos;s looser than it
+            sounds.
+          </li>
+        </ul>
+
+        <h3 className="mt-8 font-body font-bold text-ink">
+          Tell us what&apos;s wrong
+        </h3>
+        <p className="mt-2 leading-relaxed text-ink-soft">
+          Criticism is welcome when it comes with a reason.{" "}
+          <a
+            href={`${SITE.sourceUrl}/issues`}
+            className="text-pen underline underline-offset-4"
+          >
+            Open an issue on GitHub
+          </a>{" "}
+          and say what&apos;s wrong, why it matters, and, if you can, how to fix
+          it. Every fix is recorded in the project&apos;s public history.
+        </p>
+      </section>
+
       <p className="mt-12 text-ink-soft">
         Want the short version of the skill itself?{" "}
         <Link href="/learn" className="text-pen underline underline-offset-4">
-          Six lessons, two minutes each
+          {LESSON_COUNT_TITLE} lessons, a few minutes each
         </Link>
         .
       </p>
+
+      <section
+        aria-labelledby="why-heading"
+        className="mt-16 border-t border-desk-deep pt-10"
+      >
+        <h2
+          id="why-heading"
+          className="font-display text-(length:--text-title) leading-tight font-semibold text-ink"
+        >
+          Why I built this
+        </h2>
+        <div className="mt-5 space-y-5">
+          <p className="text-lg leading-relaxed text-ink-soft">
+            Over the past few years I noticed most prompting sites were built for
+            developers. But the people I talked to about AI who weren&apos;t in
+            tech were mostly intimidated by it — unsure how to make it work for
+            what they actually needed.
+          </p>
+          <p className="text-lg leading-relaxed text-ink-soft">
+            AI has improved my quality of life. I built this to help others get
+            there too: openly, for free, and with nothing asked in return. I
+            wanted to take some of the mystery out of it — and, if it&apos;s
+            possible, teach you enough that you won&apos;t need this site.
+          </p>
+        </div>
+        <p className="mt-6 text-ink-soft">
+          — Robert Sweetman ·{" "}
+          <a href={SITE.sourceUrl} className="text-pen underline underline-offset-4">
+            The code is open on GitHub
+          </a>
+          .
+        </p>
+        <p className="mt-8 text-ink-soft">
+          Thank you to my parents, Joanne and Robert Sweetman Sr.{" "}
+          <span role="img" aria-label="love">
+            ❤️
+          </span>
+        </p>
+      </section>
     </div>
   );
 }

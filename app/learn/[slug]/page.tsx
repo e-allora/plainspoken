@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { LESSONS, getLesson } from "@/lib/lessons";
+import { LESSONS, LESSON_COUNT, getLesson } from "@/lib/lessons";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -79,6 +79,30 @@ export default async function LessonPage({ params }: Params) {
         </p>
       </section>
 
+      {lesson.sources && lesson.sources.length > 0 && (
+        <section aria-labelledby="sources-heading" className="mt-10">
+          <h2
+            id="sources-heading"
+            className="font-draft text-xs tracking-widest text-ink-faint uppercase"
+          >
+            Sources
+          </h2>
+          <ul className="mt-3 space-y-2 text-sm leading-relaxed">
+            {lesson.sources.map((source) => (
+              <li key={source.url}>
+                <a
+                  href={source.url}
+                  rel="noopener noreferrer"
+                  className="text-pen underline underline-offset-4 hover:text-pen-deep"
+                >
+                  {source.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <nav
         aria-label="Lesson navigation"
         className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-desk-deep pt-6"
@@ -94,7 +118,7 @@ export default async function LessonPage({ params }: Params) {
           </Link>
         ) : (
           <p className="text-ink-soft">
-            That&apos;s all six. The rest is practice.
+            That&apos;s all {LESSON_COUNT}. The rest is practice.
           </p>
         )}
 

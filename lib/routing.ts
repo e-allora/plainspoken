@@ -7,12 +7,21 @@
 
 export type Intent = "code" | "image" | "write" | "analyze" | "general";
 
+/**
+ * 2026-10-01: every intent uses one model. Per-intent routing came from a brief
+ * for an app that *answers* prompts; this site only rewrites them, and keyword
+ * detection misrouted real prompts ("an error on my mortgage statement" went to
+ * the code model). One model also keeps the zero-retention promise simple.
+ * See docs/2026-10-01-devils-advocate-review.md.
+ */
+const REWRITE_MODEL = "anthropic/claude-haiku-4.5";
+
 export const MODELS = {
-  code: "mistralai/devstral-2512",
-  image: "google/gemini-2.5-flash",
-  write: "anthropic/claude-haiku-4.5",
-  analyze: "anthropic/claude-haiku-4.5",
-  general: "anthropic/claude-haiku-4.5",
+  code: REWRITE_MODEL,
+  image: REWRITE_MODEL,
+  write: REWRITE_MODEL,
+  analyze: REWRITE_MODEL,
+  general: REWRITE_MODEL,
 } as const satisfies Record<Intent, string>;
 
 /**

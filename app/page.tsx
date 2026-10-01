@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Improver } from "@/components/improver";
-import { LESSONS } from "@/lib/lessons";
+import { LESSONS, LESSON_COUNT, LESSON_COUNT_TITLE } from "@/lib/lessons";
 
 export default function Home() {
   return (
@@ -102,7 +102,7 @@ export default function Home() {
               id="learn-heading"
               className="font-display text-(length:--text-title) leading-tight font-semibold text-ink"
             >
-              Six things worth knowing
+              {LESSON_COUNT_TITLE} things worth knowing
             </h2>
             <p className="mt-2 max-w-lg text-ink-soft">
               This tool is a crutch, and we&apos;d rather you didn&apos;t need
@@ -113,7 +113,7 @@ export default function Home() {
             href="/learn"
             className="text-sm font-medium text-pen underline underline-offset-4 hover:text-pen-deep"
           >
-            See all six
+            See all {LESSON_COUNT}
           </Link>
         </div>
 

@@ -66,7 +66,9 @@ test.describe("home", () => {
     await expect(
       page.getByRole("heading", { name: "Your prompt, marked up" }),
     ).toBeVisible();
-    await expect(page.getByText(MOCK_RESULT.improvedPrompt)).toBeVisible();
+    await expect(
+      page.getByText(/Write an email to my landlord about my broken heater/),
+    ).toBeVisible();
 
     // The teaching layer is the point — every note must render.
     for (const item of MOCK_RESULT.improvements) {
@@ -75,7 +77,7 @@ test.describe("home", () => {
     }
 
     // A bracketed blank is explained rather than left to confuse.
-    await expect(page.getByText(/square brackets/)).toBeVisible();
+    await expect(page.getByText(/blanks are for you to fill in/)).toBeVisible();
   });
 
   test("shows a readable error instead of a raw failure", async ({ page }) => {
@@ -92,11 +94,35 @@ test.describe("home", () => {
   });
 });
 
+test.describe("blanks and self-check", () => {
+  test("fills a blank into the prompt you take away", async ({ page }) => {
+    await mockImprove(page);
+    await page.goto("/");
+
+    await page.getByLabel("What do you want the AI to do?").fill("email my landlord");
+    await page.getByRole("button", { name: "Mark up my prompt" }).click();
+
+    await expect(page.getByText("1 left to fill.")).toBeVisible();
+    await page.getByLabel("Fill in: when it broke").fill("last Tuesday");
+    await expect(page.getByText("All filled in.")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Open in Claude" })).toHaveAttribute(
+      "href",
+      /last%20Tuesday/,
+    );
+  });
+
+  test("offers a free self-check before the AI", async ({ page }) => {
+    await page.goto("/");
+    await page.getByText("Try it yourself first").click();
+    await expect(page.getByRole("link", { name: "Who is it for?" })).toBeVisible();
+  });
+});
+
 test.describe("learn", () => {
   test("lists lessons and opens one", async ({ page }) => {
     await page.goto("/learn");
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
-      "Six things worth knowing",
+      "Nine things worth knowing",
     );
 
     await page.getByRole("link", { name: /Give it the facts/ }).click();
@@ -106,9 +132,33 @@ test.describe("learn", () => {
     await expect(page.getByText("Instead of")).toBeVisible();
   });
 
+  test("old lesson link redirects to the reworked lesson", async ({ page }) => {
+    await page.goto("/learn/tell-it-who-to-be");
+    await expect(page).toHaveURL(/\/learn\/say-what-angle-you-want$/);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(
+      "Say what angle you want",
+    );
+  });
+
+  test("a lesson with a factual claim shows its source", async ({ page }) => {
+    await page.goto("/learn/what-you-type-isnt-private");
+    await expect(page.getByRole("heading", { name: "Sources" })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Heppner/ })).toBeVisible();
+  });
+
   test("about page loads", async ({ page }) => {
     await page.goto("/about");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("About");
+  });
+
+  test("about says how the site works and how to report a mistake", async ({ page }) => {
+    await page.goto("/about#how-it-works");
+    await expect(page.getByRole("heading", { name: "How this site works" })).toBeVisible();
+    await expect(page.getByText(/sees each visit, including IP addresses/)).toBeVisible();
+    await expect(page.getByRole("link", { name: "Open an issue on GitHub" })).toHaveAttribute(
+      "href",
+      /github\.com\/e-allora\/plainspoken\/issues$/,
+    );
   });
 });
 
@@ -122,8 +172,11 @@ test.describe("accessibility basics", () => {
     await page.keyboard.type("email my landlord");
     await expect(textarea).toHaveValue("email my landlord");
 
-    // Tab to the submit control and activate it without a mouse.
-    await page.getByRole("button", { name: "Mark up my prompt" }).focus();
+    // Tab to the submit control and activate it without a mouse. Wait for it to
+    // enable first, as a person would — typing can land before hydration.
+    const submit = page.getByRole("button", { name: "Mark up my prompt" });
+    await expect(submit).toBeEnabled();
+    await submit.focus();
     await page.keyboard.press("Enter");
     await expect(
       page.getByRole("heading", { name: "Your prompt, marked up" }),

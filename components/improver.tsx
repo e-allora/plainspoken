@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { countBlanks, fillBlanks, splitBlanks } from "@/lib/blanks";
 import type { Improvement, ImproveResult } from "@/lib/improve";
 import { MAX_PROMPT_LENGTH } from "@/lib/improve";
 
@@ -31,6 +32,15 @@ export function Improver() {
   const [error, setError] = useState<string>("");
   const [copied, setCopied] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Text typed before the page finished loading sits in the box but not in
+  // state, leaving the counter at 0 and the button disabled (slow phones hit
+  // this). Pick it up once React takes over.
+  useEffect(() => {
+    const typedEarly = textareaRef.current?.value;
+    if (typedEarly) setPrompt(typedEarly);
+  }, []);
 
   const tooLong = prompt.length > MAX_PROMPT_LENGTH;
   const canSubmit = prompt.trim().length >= 3 && !tooLong && status !== "loading";
@@ -69,10 +79,9 @@ export function Improver() {
     }
   }
 
-  async function handleCopy() {
-    if (!result) return;
+  async function handleCopy(text: string) {
     try {
-      await navigator.clipboard.writeText(result.improvedPrompt);
+      await navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -98,6 +107,7 @@ export function Improver() {
 
           <div className="pad-ruled pad-margin mt-3">
             <textarea
+              ref={textareaRef}
               id="prompt"
               name="prompt"
               value={prompt}
@@ -142,6 +152,40 @@ export function Improver() {
             </ul>
           </div>
         )}
+
+        {/* The point is to stop needing this tool. Free to run: no API call. */}
+        <details className="mt-5 text-sm text-ink-soft">
+          <summary className="cursor-pointer font-medium text-ink hover:text-pen">
+            Try it yourself first
+          </summary>
+          <p className="mt-2">
+            Check your words against three questions. Most of what we&apos;d
+            fix comes from these:
+          </p>
+          <ol className="mt-2 list-decimal space-y-1 pl-5">
+            <li>
+              <Link href="/learn/say-who-it-is-for" className="text-pen underline underline-offset-4">
+                Who is it for?
+              </Link>
+            </li>
+            <li>
+              <Link href="/learn/say-what-you-want-back" className="text-pen underline underline-offset-4">
+                What do you want back?
+              </Link>{" "}
+              A list, an email, three options?
+            </li>
+            <li>
+              <Link href="/learn/give-it-the-facts" className="text-pen underline underline-offset-4">
+                What do you know that it doesn&apos;t?
+              </Link>{" "}
+              Dates, names, what you&apos;ve already tried.
+            </li>
+          </ol>
+          <p className="mt-2">
+            If your words already answer all three, you may not need us. Copy
+            them and go.
+          </p>
+        </details>
 
         <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -188,7 +232,12 @@ export function Improver() {
         )}
 
         {status === "done" && result && (
-          <Result result={result} onCopy={handleCopy} copied={copied} />
+          <Result
+            key={result.requestId ?? result.improvedPrompt}
+            result={result}
+            onCopy={handleCopy}
+            copied={copied}
+          />
         )}
       </div>
     </section>
@@ -210,10 +259,17 @@ function Result({
   copied,
 }: {
   result: ImproveResult;
-  onCopy: () => void;
+  onCopy: (text: string) => void;
   copied: boolean;
 }) {
-  const encoded = encodeURIComponent(result.improvedPrompt);
+  const segments = useMemo(() => splitBlanks(result.improvedPrompt), [result.improvedPrompt]);
+  const [values, setValues] = useState<Record<number, string>>({});
+  const finalPrompt = fillBlanks(segments, values);
+  const blanks = countBlanks(segments);
+  const unfilled = segments.filter(
+    (segment) => "blank" in segment && !values[segment.index]?.trim(),
+  ).length;
+  const encoded = encodeURIComponent(finalPrompt);
 
   return (
     <div className="settle mt-(--spacing-section)">
@@ -230,7 +286,27 @@ function Result({
           <div className="pad mt-4 rounded-sm p-5">
             <div className="pad-ruled pad-margin">
               <p className="on-rules pl-12 font-display text-lg whitespace-pre-wrap text-ink">
-                {result.improvedPrompt}
+                {segments.map((segment, i) =>
+                  "text" in segment ? (
+                    <Fragment key={i}>{segment.text}</Fragment>
+                  ) : (
+                    <input
+                      key={i}
+                      type="text"
+                      aria-label={`Fill in: ${segment.blank}`}
+                      placeholder={segment.blank}
+                      value={values[segment.index] ?? ""}
+                      onChange={(event) =>
+                        setValues((current) => ({
+                          ...current,
+                          [segment.index]: event.target.value,
+                        }))
+                      }
+                      size={Math.max(segment.blank.length, (values[segment.index] ?? "").length, 4)}
+                      className="mx-0.5 inline-block max-w-full rounded-sm border-0 border-b-2 border-pen bg-pen-wash px-1 py-0 font-display text-lg text-ink placeholder:text-pen/70 focus:bg-pad focus:outline-none"
+                    />
+                  ),
+                )}
               </p>
             </div>
           </div>
@@ -238,7 +314,7 @@ function Result({
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <button
               type="button"
-              onClick={onCopy}
+              onClick={() => onCopy(finalPrompt)}
               className="rounded-sm bg-ink px-4 py-2.5 text-sm font-medium text-pad transition-colors hover:bg-ink-soft"
             >
               {copied ? "Copied" : "Copy prompt"}
@@ -261,10 +337,14 @@ function Result({
             </a>
           </div>
 
-          {result.improvedPrompt.includes("[") && (
+          {blanks > 0 && (
             <p className="mt-4 border-l-2 border-margin pl-3 text-sm text-ink-soft">
-              Anything in [square brackets] is a blank for you to fill in. We
-              left those because only you know the answer.
+              The highlighted blanks are for you to fill in — only you know the
+              answer. What you type there stays in your browser and goes into
+              the copied prompt, not to us.{" "}
+              <span aria-live="polite">
+                {unfilled > 0 ? `${unfilled} left to fill.` : "All filled in."}
+              </span>
             </p>
           )}
         </div>

@@ -105,6 +105,12 @@ export default function RootLayout({
               <Link href="/about" className="text-pad/80 underline-offset-4 hover:underline">
                 About
               </Link>
+              <Link
+                href="/about#how-it-works"
+                className="text-pad/80 underline-offset-4 hover:underline"
+              >
+                How this site works
+              </Link>
               <a
                 href={SITE.sourceUrl}
                 className="text-pad/80 underline-offset-4 hover:underline"
@@ -113,9 +119,10 @@ export default function RootLayout({
               </a>
             </div>
             <p className="mt-6 text-xs leading-relaxed text-pad/60">
-              {creditLine()} Rewrites run on AI models from Anthropic, Google,
-              and Mistral via OpenRouter. Your words are sent to those models and
-              are not stored here.
+              {creditLine()} Rewrites run on Claude Haiku, an AI model made by
+              Anthropic, reached through OpenRouter. This site doesn&apos;t store
+              your words, and we ask OpenRouter to send them only to providers
+              with a zero-data-retention policy.
             </p>
           </div>
         </footer>

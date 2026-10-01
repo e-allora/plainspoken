@@ -39,22 +39,23 @@ port — watch the terminal for the URL.
 | Variable | Required | Notes |
 |---|---|---|
 | `OPENROUTER_API_KEY` | Yes | Server-side only. Never prefix `NEXT_PUBLIC_`. |
-| `OPENROUTER_MODEL` | No | Force one model for all requests, e.g. `openrouter/free` for zero cost. Unset = per-intent routing below. |
+| `OPENROUTER_MODEL` | No | Force a different model, e.g. for testing. Every request asks for zero data retention, so a model with no zero-retention provider (many free ones) will fail. Unset = `anthropic/claude-haiku-4.5`. |
 | `SITE_URL` | No | Public URL, sent to OpenRouter for attribution. |
 
-## How model routing works
+## Which model, and what happens to the words
 
-`lib/routing.ts` maps a prompt to a model deterministically — same input, same model,
-every time, which is what makes it testable.
+Every rewrite uses `anthropic/claude-haiku-4.5`. Per-intent routing was removed on
+2026-10-01: keyword detection sent real prompts to the wrong model ("an error on my
+mortgage statement" went to a code model), and a rewriter doesn't benefit from it.
+`lib/routing.ts` still detects intent for the response payload.
 
-| Intent | Model |
-|---|---|
-| `code` | `mistralai/devstral-2512` |
-| `image` | `google/gemini-2.5-flash` |
-| `write` / `analyze` / `general` | `anthropic/claude-haiku-4.5` |
+If the user picks a category in the UI, it is passed to the rewriter as a hint.
+Automatic detection is not, because it's too unreliable to steer the rewrite.
 
-Intent is detected by word-boundary keyword matching, most specific first. Picking a
-category in the UI overrides detection.
+Every request to OpenRouter sends `provider: { zdr: true, data_collection: "deny" }`, so
+it's routed only to providers with a zero-data-retention policy. The site itself stores
+no prompts and no rewrites. That's a design decision, not a missing feature. See
+[the 2026-10-01 review](docs/2026-10-01-devils-advocate-review.md).
 
 ## Documentation
 
@@ -64,13 +65,25 @@ Written as dated documents; the trail of changes lives in the record, not in edi
 |---|---|
 | [Build report](docs/2026-07-14-build-report.md) | What was here, what got built, every decision and why |
 | [Architecture](docs/2026-07-14-architecture.md) | Request flow, API contract, CSS contracts, gotchas |
-| [Supabase plan](docs/2026-07-14-supabase-integration-plan.md) | The one unbuilt piece of the spec, with steps |
+| [Supabase plan](docs/2026-07-14-supabase-integration-plan.md) | The original logging spec. Superseded: prompts are not stored (see the review below) |
 | [Deployment](docs/2026-07-14-deployment.md) | Vercel, Cloudflare, headers, renaming |
+| [Review, 2026-10-01](docs/2026-10-01-devils-advocate-review.md) | Critical review: zero retention, single model, honesty rules, what's next |
 
-The original brief is `Breakdown for the AGENTS.txt`. Reference material sits alongside
-it at the repository root.
+The original brief is `Breakdown for the AGENTS.txt`. It names Prompt Cowboy
+(promptcowboy.ai) as the inspiration; Plainspoken's design and code are its own.
+
+Three DataCamp articles used as reference during the build (`LLMops.md`, `MLopsTools.md`,
+`integration-testing.md`) were removed from the repository on 2026-10-01. They are
+DataCamp's copyrighted work, not ours to publish, and the MIT license never covered
+them. They remain in the early commit history, with their authors credited.
 
 ## Status
 
-Working and deployable. Not deployed. Auth and usage logging are specified but not
-built — see the Supabase plan. "Plainspoken" is a placeholder name.
+Live at [plainspoken.site](https://plainspoken.site). No accounts and no stored prompts,
+by design. The original brief's auth and usage logging are not planned.
+
+## License
+
+Code: MIT. See [LICENSE](LICENSE). Free to use, copy, and adapt.
+
+Writing (the lessons in `lib/lessons.ts` and the page text): [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Reuse it with credit.

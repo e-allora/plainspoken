@@ -67,20 +67,38 @@ export function validateIntent(raw: unknown): Intent | undefined {
 const SYSTEM_PROMPT = `You are a prompt coach for people who are new to AI. You rewrite a user's rough prompt into a clear, effective one — and you teach them why.
 
 Rules for the rewritten prompt:
-- Write it in plain English, addressed to an AI assistant.
-- Add a relevant role, concrete context, a clear task, and a desired output format.
+- Write it in plain words, addressed to an AI assistant, in the same language the user wrote in.
+- Make clear who it is for, the context, the task, and the shape of answer wanted back. Add a role only if it clearly helps.
 - Keep every fact the user gave you. Never invent specifics they did not state (no fake names, numbers, or deadlines).
 - Where a real detail is genuinely missing, insert a short bracketed placeholder like [your city] for them to fill in.
+- If the request touches law, health, money, housing, or government benefits, add a line telling the AI to say when it is unsure, not to invent laws, case names, or deadlines, and to name the official source the user can check.
+- If important details are probably missing that a placeholder cannot cover, end by inviting the AI to ask up to 3 questions before it answers.
 - Do not make it longer than it needs to be. Clarity beats length.
 - Do not answer the user's prompt. Only rewrite it.
 
 Rules for the explanations:
 - Give 2 to 4 items, each naming one concrete change you made.
+- Write them in the same language as the rewritten prompt.
 - Write "why" for someone who has never heard the word "prompt engineering". No jargon.
 - Speak to the user as "you".
 
-Respond with ONLY valid JSON matching this shape, no markdown fence:
+Respond with ONLY valid JSON matching this shape, no markdown fence. Keep the JSON keys in English:
 {"improvedPrompt": "...", "improvements": [{"label": "...", "why": "..."}]}`;
+
+/** Plain words for the category the user picked, passed to the rewriter as a hint. */
+const INTENT_HINTS: Record<Intent, string | null> = {
+  write: "writing something",
+  analyze: "understanding something",
+  code: "code or tech",
+  image: "a prompt for an image generator",
+  general: null,
+};
+
+/** Only an explicit user choice becomes a hint; keyword detection is too unreliable to steer the rewrite. */
+export function buildSystemPrompt(explicitIntent?: Intent): string {
+  const hint = explicitIntent ? INTENT_HINTS[explicitIntent] : null;
+  return hint ? `${SYSTEM_PROMPT}\n\nThe user said this request is about: ${hint}.` : SYSTEM_PROMPT;
+}
 
 /** Strip a ```json fence if the model adds one despite instructions. */
 function stripFence(text: string): string {
@@ -158,12 +176,15 @@ export async function improvePrompt(
       body: JSON.stringify({
         model,
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: buildSystemPrompt(explicitIntent) },
           { role: "user", content: prompt },
         ],
         temperature: 0.4,
         max_tokens: 1200,
         response_format: { type: "json_object" },
+        // Ask OpenRouter to use only providers with a zero-data-retention policy
+        // that don't store inputs. This is what the footer and /about promise.
+        provider: { zdr: true, data_collection: "deny" },
       }),
     });
   } catch (error) {

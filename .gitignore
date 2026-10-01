@@ -50,3 +50,8 @@ next-env.d.ts
 # local env
 .env
 .env*.local
+
+# DataCamp articles kept locally for reference; not ours to publish (removed 2026-10-01)
+LLMops.md
+MLopsTools.md
+integration-testing.md
