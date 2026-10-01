@@ -35,10 +35,14 @@ export default function About() {
           </dt>
           <dd className="mt-2 leading-relaxed text-ink-soft">
             It&apos;s sent to an AI model to be rewritten, and the result comes
-            back to you. There are no accounts, so nothing is tied to your name.
-            Even so — don&apos;t paste in passwords, card numbers, or anything
-            you&apos;d mind a stranger reading. That&apos;s good practice with
-            any AI tool, not just this one.
+            back to you. This site doesn&apos;t save it. We also ask the service
+            in between, OpenRouter, to use only providers that have a
+            zero-data-retention policy — that&apos;s a promise those companies
+            make, which we can ask for but can&apos;t inspect. There are no
+            accounts, so nothing is tied to your name. Even so — don&apos;t
+            paste in passwords, card numbers, or anything you&apos;d mind a
+            stranger reading. That&apos;s good practice with any AI tool, not
+            just this one.
           </dd>
         </div>
 
@@ -96,9 +100,9 @@ export default function About() {
             )}{" "}
             working with Claude Code, an AI coding tool from Anthropic. The
             person decided what it should do and how it should treat you; the
-            AI wrote most of the code. The rewrites themselves come from AI
-            models made by Anthropic, Google, and Mistral, reached through a
-            service called OpenRouter. The code is public at{" "}
+            AI wrote most of the code. The rewrites themselves come from Claude
+            Haiku, an AI model made by Anthropic, reached through a service
+            called OpenRouter. The code is public at{" "}
             <a href={SITE.sourceUrl} className="text-pen underline underline-offset-4">
               GitHub
             </a>
@@ -114,6 +118,45 @@ export default function About() {
         </Link>
         .
       </p>
+
+      <section
+        aria-labelledby="why-heading"
+        className="mt-16 border-t border-desk-deep pt-10"
+      >
+        <h2
+          id="why-heading"
+          className="font-display text-(length:--text-title) leading-tight font-semibold text-ink"
+        >
+          Why I built this
+        </h2>
+        <div className="mt-5 space-y-5">
+          <p className="text-lg leading-relaxed text-ink-soft">
+            Over the past few years I noticed most prompting sites were built for
+            developers. But the people I talked to about AI who weren&apos;t in
+            tech were mostly intimidated by it — unsure how to make it work for
+            what they actually needed.
+          </p>
+          <p className="text-lg leading-relaxed text-ink-soft">
+            AI has improved my quality of life. I built this to help others get
+            there too: openly, for free, and with nothing asked in return. I
+            wanted to take some of the mystery out of it — and, if it&apos;s
+            possible, teach you enough that you won&apos;t need this site.
+          </p>
+        </div>
+        <p className="mt-6 text-ink-soft">
+          — Robert Sweetman ·{" "}
+          <a href={SITE.sourceUrl} className="text-pen underline underline-offset-4">
+            The code is open on GitHub
+          </a>
+          .
+        </p>
+        <p className="mt-8 text-ink-soft">
+          Thank you to my parents, Joanne and Robert Sweetman Sr.{" "}
+          <span role="img" aria-label="love">
+            ❤️
+          </span>
+        </p>
+      </section>
     </div>
   );
 }
