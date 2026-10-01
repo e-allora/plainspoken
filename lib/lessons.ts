@@ -10,13 +10,15 @@ export type Lesson = {
   after: string;
   /** Why the "after" works — the point of the lesson. */
   point: string;
+  /** Where a factual claim in the lesson can be checked. */
+  sources?: { label: string; url: string }[];
 };
 
 export const LESSONS: Lesson[] = [
   {
     slug: "say-who-it-is-for",
     title: "Say who it's for",
-    hook: "The same answer can be right for a lawyer and useless for your mum.",
+    hook: "The same answer can be right for a lawyer and useless for your mom.",
     minutes: 2,
     body: [
       "An AI doesn't know who's reading. So it picks an average: middle-of-the-road, a bit formal, aimed at nobody in particular. That's why answers so often feel like a brochure.",
@@ -57,25 +59,31 @@ export const LESSONS: Lesson[] = [
     ],
     before: "write a complaint letter about a delivery",
     after:
-      "Write a complaint email to Brightway Furniture. I ordered a dining table on 3 March, they promised delivery within 10 days, and it's now 2 April with no delivery. I've called twice and nobody called back. I want a full refund. Keep it firm but polite, under 200 words.",
+      "Write a complaint email to Brightway Furniture. I ordered a dining table on March 3, they promised delivery within 10 days, and it's now April 2 with no delivery. I've called twice and nobody called back. I want a full refund. Keep it firm but polite, under 200 words.",
     point:
       "Same request. But now every specific belongs to your actual problem, so the letter is ready to send rather than ready to rewrite.",
   },
   {
-    slug: "tell-it-who-to-be",
-    title: "Tell it who to be",
-    hook: "\"You are a nurse explaining this to a patient\" changes everything after it.",
+    slug: "say-what-angle-you-want",
+    title: "Say what angle you want",
+    hook: "\"Practical, for a beginner\" does more than \"You are an expert.\"",
     minutes: 2,
     body: [
-      "Giving the AI a role is a shortcut. Instead of listing every rule you want it to follow, you name a kind of person, and it pulls in all the habits that come with that job.",
-      "\"You are an experienced plumber\" brings practical, safety-first, no-nonsense. \"You are a patient tutor\" brings small steps and checking in. You didn't have to spell any of that out.",
+      "You'll see advice to start every prompt with \"You are an expert…\". Newer AI models mostly don't need that. What helps more is saying what angle you want: practical or thorough, cautious or blunt, for a beginner or for someone who's done this before.",
+      "A short role can still be a handy shortcut. \"Answer like a patient tutor\" brings small steps and checking in. But it's the angle doing the work, not the job title.",
       "Keep it honest, though. A role changes how it writes, not what it knows. Calling it a doctor doesn't make its medical advice safe to rely on.",
     ],
     before: "is my sourdough starter dead",
     after:
-      "You are an experienced baker helping a nervous beginner. My sourdough starter has a grey liquid on top and smells sharp, like nail polish. Walk me through whether it's dead, and what to do next, in plain steps.",
+      "I'm a nervous beginner. My sourdough starter has a gray liquid on top and smells sharp, like nail polish. Tell me plainly whether it's dead and what to do next, in short steps.",
     point:
-      "The role set the tone and the level of detail. The specific facts — grey liquid, sharp smell — did the actual diagnostic work.",
+      "No job title needed. Saying who you are and how you want it told set the tone. The specific facts — gray liquid, sharp smell — did the actual diagnosing.",
+    sources: [
+      {
+        label: "Anthropic: prompt engineering best practices (Nov 2025)",
+        url: "https://claude.com/blog/best-practices-for-prompt-engineering",
+      },
+    ],
   },
   {
     slug: "show-an-example",
@@ -89,9 +97,74 @@ export const LESSONS: Lesson[] = [
     ],
     before: "write product descriptions for my candles in a nice style",
     after:
-      "Here's a product description I like the sound of:\n\n\"Smells like the first ten minutes of a bonfire. Burns for 40 hours. Made in a shed in Leeds.\"\n\nWrite descriptions in that same voice — short, dry, concrete — for these three candles: [list your candles].",
+      "Here's a product description I like the sound of:\n\n\"Smells like the first ten minutes of a bonfire. Burns for 40 hours. Made in a shed in Vermont.\"\n\nWrite descriptions in that same voice — short, dry, concrete — for these three candles: [list your candles].",
     point:
       "One example did what three paragraphs of adjectives couldn't. The AI can copy a pattern far more reliably than it can interpret a mood.",
+  },
+  {
+    slug: "let-it-ask-you-questions",
+    title: "Let it ask you questions",
+    hook: "It won't ask what it's missing unless you invite it. So invite it.",
+    minutes: 2,
+    body: [
+      "An AI would rather guess than ask. Left alone, it fills every gap with something plausible and keeps going.",
+      "One sentence changes that: \"Before you answer, ask me any questions you need.\" Now the gaps come back to you as questions, and you answer them with what only you know.",
+      "Put a cap on it if you're short on time — \"ask me up to three questions\" — so it asks about what matters most instead of interviewing you.",
+    ],
+    before: "help me write a cover letter",
+    after:
+      "Help me write a cover letter for a job I'm applying for. Before you write anything, ask me up to 3 questions about the job and my experience, so you're not guessing.",
+    point:
+      "Instead of a generic letter you'd have to rewrite, you get a few questions — and your answers are what make the letter yours.",
+  },
+  {
+    slug: "make-it-say-when-its-guessing",
+    title: "Make it tell you when it's guessing",
+    hook: "It sounds just as sure when it's wrong. Ask it to say which is which.",
+    minutes: 3,
+    body: [
+      "An AI states a guess in the same confident voice as a fact. In 2023, two New York lawyers were sanctioned $5,000 after filing a brief with six court cases ChatGPT had made up. When one of them asked ChatGPT whether the cases were real, it said yes.",
+      "You can give it permission to be honest: \"If you're not sure, say so. Don't make up laws, cases, or dates.\" It won't make it perfect, but it makes it more likely to admit a gap instead of filling it.",
+      "Then check the parts that matter. Ask where you can verify each point — the agency, the name of the law, the official website — and look it up yourself. For anything with a deadline or money on the line, a real person at legal aid, the agency, or your doctor's office is worth the call.",
+    ],
+    before: "what are my rights if my landlord won't fix the heat",
+    after:
+      "I rent an apartment in [your state], and my landlord hasn't fixed the heat for [how long]. What are my rights? If you're not sure about something, say so — don't make up laws or deadlines. For each right you mention, tell me where I can check it myself, like the state agency or the name of the law.",
+    point:
+      "The facts make the answer fit your situation. The last two sentences make it honest about its limits — and hand you a way to check its work.",
+    sources: [
+      {
+        label: "Mata v. Avianca (2023): lawyers sanctioned for AI-invented cases",
+        url: "https://en.wikipedia.org/wiki/Mata_v._Avianca,_Inc.",
+      },
+      {
+        label: "Anthropic: give the AI permission to express uncertainty (Nov 2025)",
+        url: "https://claude.com/blog/best-practices-for-prompt-engineering",
+      },
+    ],
+  },
+  {
+    slug: "what-you-type-isnt-private",
+    title: "What you type isn't private",
+    hook: "An AI chat isn't a conversation with your lawyer. Leave the real numbers out.",
+    minutes: 3,
+    body: [
+      "Anything you type into an AI tool is sent to the company that runs it. Their privacy policy decides what happens next: how long it's kept, what it's used for, and who they may share it with.",
+      "It's also not like talking to a lawyer. In February 2026, a federal judge in New York ruled that a man's conversations with Claude, an AI chatbot, were not protected by attorney-client privilege, and prosecutors were allowed to obtain them. The judge pointed to the company's privacy policy, which allowed it to use what people type and to share it, including with the government. Some legal experts think the ruling went too far. Until courts settle it, assume your AI chats could be read by someone else.",
+      "You can still get the help without handing over the details. Swap account numbers, Social Security numbers, case numbers, and full names for placeholders like [account number]. The AI doesn't need the real ones to write a good letter. You fill them in afterward.",
+    ],
+    before:
+      "my name is Jane Example, SSN 000-00-0000, account 0012-3456-789. write a letter disputing a late fee on my credit card",
+    after:
+      "Write a letter to my credit card company disputing a late fee. I paid on [payment date], before the due date, and was charged anyway. Use [my name] and [account number] as placeholders — I'll fill those in myself. Keep it short and firm.",
+    point:
+      "The letter comes out just as good. Your Social Security and account numbers just never left your computer.",
+    sources: [
+      {
+        label: "Harvard Law Review on United States v. Heppner (Mar 2026)",
+        url: "https://harvardlawreview.org/blog/2026/03/united-states-v-heppner/",
+      },
+    ],
   },
   {
     slug: "keep-going",
@@ -110,6 +183,15 @@ export const LESSONS: Lesson[] = [
       "You don't have to get it right first time. You just have to say what's off — the same way you would to a person.",
   },
 ];
+
+const NUMBER_WORDS = [
+  "zero", "one", "two", "three", "four", "five", "six",
+  "seven", "eight", "nine", "ten", "eleven", "twelve",
+];
+
+/** "nine", for copy like "See all nine", so the count never goes stale. */
+export const LESSON_COUNT = NUMBER_WORDS[LESSONS.length] ?? String(LESSONS.length);
+export const LESSON_COUNT_TITLE = LESSON_COUNT[0].toUpperCase() + LESSON_COUNT.slice(1);
 
 export function getLesson(slug: string): Lesson | undefined {
   return LESSONS.find((lesson) => lesson.slug === slug);

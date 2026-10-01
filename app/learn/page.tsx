@@ -1,22 +1,22 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LESSONS } from "@/lib/lessons";
+import { LESSONS, LESSON_COUNT, LESSON_COUNT_TITLE } from "@/lib/lessons";
 
 export const metadata: Metadata = {
   title: "Learn — Plainspoken",
   description:
-    "Six short, plain-language lessons on getting useful answers out of AI. No jargon, about two minutes each.",
+    `${LESSON_COUNT_TITLE} short, plain-language lessons on getting useful answers out of AI. No jargon, a few minutes each.`,
 };
 
 export default function LearnIndex() {
   return (
     <div className="mx-auto w-full max-w-3xl px-5 pt-12 pb-(--spacing-section) sm:pt-16">
       <h1 className="font-display text-(length:--text-hero) leading-[0.95] font-semibold tracking-tight text-balance text-ink">
-        Six things worth knowing
+        {LESSON_COUNT_TITLE} things worth knowing
       </h1>
       <p className="mt-5 max-w-xl text-lg leading-relaxed text-ink-soft">
         There&apos;s no secret vocabulary and no magic words. It&apos;s mostly
-        just saying more of what&apos;s already in your head. These are the six
+        just saying more of what&apos;s already in your head. These are the {LESSON_COUNT}
         moves that do the most work.
       </p>
 

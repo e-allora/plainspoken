@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { LESSON_COUNT_TITLE } from "@/lib/lessons";
 import { SITE } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -114,7 +115,7 @@ export default function About() {
       <p className="mt-12 text-ink-soft">
         Want the short version of the skill itself?{" "}
         <Link href="/learn" className="text-pen underline underline-offset-4">
-          Six lessons, two minutes each
+          {LESSON_COUNT_TITLE} lessons, a few minutes each
         </Link>
         .
       </p>

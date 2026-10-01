@@ -109,3 +109,22 @@ Fixed along the way:
 - **Typing before the page finished loading** left the text in the box but the counter at 0 and the button disabled (slow phones). `components/improver.tsx` now picks up early-typed text; the keyboard e2e test waits for the button to enable.
 
 Verification: typecheck ✅ · lint ✅ · unit 40/40 ✅ · e2e 18/18 ✅ (Chromium installed inside `node_modules` via `PLAYWRIGHT_BROWSERS_PATH=0`, port 3107) · build ✅ · live smoke 4/4 ✅ (Haiku 4.5 with zero-retention routing; Spanish stays Spanish; mortgage prompt gets honesty/source lines). The smoke checks are pattern matches; the full rewritten text wasn't printed.
+
+---
+
+## Batch 2 — built 2026-10-01 15:12 EDT (branch `improve/batch-2`, PR #5)
+
+- **Fill-in blanks:** each `[blank]` in a rewrite is now an input box. Copy and "Open in…" use the filled-in text; a live count shows what's left. Values stay in the browser. Logic in `lib/blanks.ts` (skips code like `arr[0]`), tested in `lib/blanks.test.ts`.
+- **Try it yourself first:** a collapsed three-question self-check under the prompt box, linking to the matching lessons. No API call.
+- **Lessons (now nine):**
+  - Lesson 4 is now "Say what angle you want" (role-play de-emphasized per Anthropic's Nov 2025 guidance). The old URL redirects permanently.
+  - New: "Let it ask you questions", "Make it tell you when it's guessing", "What you type isn't private".
+  - US English throughout.
+  - Lessons with factual claims carry a Sources list.
+  - "Six" is no longer hard-coded anywhere.
+- **Facts used, and how they were checked:**
+  - Mata v. Avianca (2023; ,000 sanction; six invented cases; ChatGPT said they were real): web search, multiple sources.
+  - United States v. Heppner (S.D.N.Y., Judge Rakoff, Feb 17 2026; chats with Claude not privileged; prosecutors obtained them; court cited the privacy policy): Harvard Law Review blog, read directly. The lesson says experts disagree and doesn't overstate it as settled law.
+- **Not used, because unverified this session:** the NYT v. OpenAI log-preservation order, and whether consumer AI apps train on chats by default. Two web searches were blocked by a permission check.
+
+Verification: typecheck ✅ · lint ✅ · unit 50/50 ✅ · build ✅ · e2e 26/26 ✅ (desktop + mobile).

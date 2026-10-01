@@ -22,6 +22,16 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // Lesson 4 was reworked and renamed on 2026-10-01; keep old links working.
+  async redirects() {
+    return [
+      {
+        source: "/learn/tell-it-who-to-be",
+        destination: "/learn/say-what-angle-you-want",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
