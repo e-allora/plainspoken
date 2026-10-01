@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const PORT = 3100;
+// Override with E2E_PORT when 3100 is taken on the dev machine.
+const PORT = Number(process.env.E2E_PORT) || 3100;
 
 export default defineConfig({
   testDir: "./e2e",

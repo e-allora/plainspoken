@@ -85,3 +85,9 @@ describe("routePrompt", () => {
     expect(routePrompt("debug my python script").intent).toBe("code");
   });
 });
+
+describe("MODELS", () => {
+  it("uses one rewrite model for every intent (2026-10-01 decision)", () => {
+    expect(new Set(Object.values(MODELS))).toEqual(new Set(["anthropic/claude-haiku-4.5"]));
+  });
+});

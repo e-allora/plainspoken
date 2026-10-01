@@ -48,9 +48,11 @@ export async function POST(request: Request) {
     const intent = validateIntent(fields.intent);
     const result = await improvePrompt(prompt, intent);
 
-    // TODO(auth): once Supabase is connected, persist { user_id, prompt,
-    // model_used, tokens_used, cost_usd, created_at } here. See
-    // docs/2026-07-14-supabase-integration-plan.md.
+    // Decision (2026-10-01): prompts and rewrites are NOT stored. The site
+    // promises this in the footer and on /about. The original brief's Supabase
+    // logging (docs/2026-07-14-supabase-integration-plan.md) is not to be built
+    // as written; any future usage counting must store no text and be disclosed
+    // on /about first. See docs/2026-10-01-devils-advocate-review.md.
 
     return NextResponse.json(result, {
       headers: { "X-RateLimit-Remaining": String(limit.remaining) },
