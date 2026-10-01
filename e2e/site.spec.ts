@@ -122,8 +122,11 @@ test.describe("accessibility basics", () => {
     await page.keyboard.type("email my landlord");
     await expect(textarea).toHaveValue("email my landlord");
 
-    // Tab to the submit control and activate it without a mouse.
-    await page.getByRole("button", { name: "Mark up my prompt" }).focus();
+    // Tab to the submit control and activate it without a mouse. Wait for it to
+    // enable first, as a person would — typing can land before hydration.
+    const submit = page.getByRole("button", { name: "Mark up my prompt" });
+    await expect(submit).toBeEnabled();
+    await submit.focus();
     await page.keyboard.press("Enter");
     await expect(
       page.getByRole("heading", { name: "Your prompt, marked up" }),

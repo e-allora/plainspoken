@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Improvement, ImproveResult } from "@/lib/improve";
 import { MAX_PROMPT_LENGTH } from "@/lib/improve";
 
@@ -31,6 +31,15 @@ export function Improver() {
   const [error, setError] = useState<string>("");
   const [copied, setCopied] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Text typed before the page finished loading sits in the box but not in
+  // state, leaving the counter at 0 and the button disabled (slow phones hit
+  // this). Pick it up once React takes over.
+  useEffect(() => {
+    const typedEarly = textareaRef.current?.value;
+    if (typedEarly) setPrompt(typedEarly);
+  }, []);
 
   const tooLong = prompt.length > MAX_PROMPT_LENGTH;
   const canSubmit = prompt.trim().length >= 3 && !tooLong && status !== "loading";
@@ -98,6 +107,7 @@ export function Improver() {
 
           <div className="pad-ruled pad-margin mt-3">
             <textarea
+              ref={textareaRef}
               id="prompt"
               name="prompt"
               value={prompt}
