@@ -105,6 +105,12 @@ export default function RootLayout({
               <Link href="/about" className="text-pad/80 underline-offset-4 hover:underline">
                 About
               </Link>
+              <Link
+                href="/about#how-it-works"
+                className="text-pad/80 underline-offset-4 hover:underline"
+              >
+                How this site works
+              </Link>
               <a
                 href={SITE.sourceUrl}
                 className="text-pad/80 underline-offset-4 hover:underline"
