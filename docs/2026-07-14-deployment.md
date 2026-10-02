@@ -1,5 +1,12 @@
 # Deployment — 14 July 2026
 
+> **Status note, 2026-10-02.** The site is deployed at plainspoken.site, and the
+> security headers below are now in `next.config.ts` (HSTS is left to Vercel). The
+> Cloudflare section is optional. If the site is ever served through Cloudflare in
+> front of Vercel, the per-IP rate limit may see Cloudflare's addresses instead of
+> visitors', which would let one busy region use up everyone's allowance. See
+> `docs/2026-10-02-ethics-and-risk-audit.md`.
+
 **Status: not deployed.** No Vercel, Cloudflare, or GitHub setting was changed. These are the steps.
 
 ---

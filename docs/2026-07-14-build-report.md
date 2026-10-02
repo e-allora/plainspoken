@@ -1,5 +1,10 @@
 # Build Report — 14 July 2026
 
+> **Status note, 2026-10-02.** Written at the first build. Since then the site has been
+> deployed, renamed from the placeholder to Plainspoken, moved to a single model, and
+> made to store nothing. This report is kept as the record of the first build. See the
+> 2026-10-01 review and the 2026-10-02 audit for what changed.
+
 Author: Claude (Opus 4.8), autonomous session
 Branch: `feat/prompt-site-mvp`
 Status: working application, deployable, not yet deployed

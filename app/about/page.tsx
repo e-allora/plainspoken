@@ -44,7 +44,9 @@ export default function About() {
             accounts, so nothing is tied to your name. Even so — don&apos;t
             paste in passwords, card numbers, or anything you&apos;d mind a
             stranger reading. That&apos;s good practice with any AI tool, not
-            just this one.
+            just this one. If what you type looks like a card number, a Social
+            Security number, or a password, the page checks with you before it
+            sends anything.
           </dd>
         </div>
 
@@ -74,9 +76,9 @@ export default function About() {
             Can I trust what the AI tells me afterwards?
           </dt>
           <dd className="mt-2 leading-relaxed text-ink-soft">
-            Not blindly. A better prompt gets you a better answer, not a
-            guaranteed true one. These tools state wrong things with total
-            confidence. For anything that matters — medical, legal, money —
+            Not without checking. A better prompt gets you a better answer,
+            not a guaranteed true one. These tools can state wrong things with
+            total confidence. For anything that matters — medical, legal, money —
             check it against a real source or a real person.
           </dd>
         </div>
@@ -132,7 +134,8 @@ export default function About() {
         <h3 className="mt-8 font-body font-bold text-ink">Who runs it</h3>
         <p className="mt-2 leading-relaxed text-ink-soft">
           Robert Sweetman, on his own. No money, sponsors, or investors are
-          behind it. No ads, no tracking, no analytics.
+          behind it, and it isn&apos;t affiliated with Anthropic, OpenAI,
+          Google, or OpenRouter. No ads, no tracking, no analytics.
         </p>
 
         <h3 className="mt-8 font-body font-bold text-ink">
@@ -174,11 +177,12 @@ export default function About() {
         <p className="mt-2 leading-relaxed text-ink-soft">
           Robert decided what it does and how it treats you. Claude wrote most
           of the code with him in Claude Code, Anthropic&apos;s coding tool,
-          using the newest model available each time: Claude Opus 4.8 (July
-          2026), Claude Fable 5.1 (September), and Claude Opus 5.5 (October),
-          according to the project&apos;s records. The code is MIT-licensed. The
-          lessons and page writing are free to reuse with credit, under CC BY
-          4.0.
+          over several sessions between July and October 2026. Claude also
+          drafted the lessons and most of the page text; the &ldquo;Why I built
+          this&rdquo; note below is Robert&apos;s own words, lightly edited. The
+          project&apos;s public history credits Claude on each change it helped
+          write, so you can check. The code is MIT-licensed. The lessons and
+          page writing are free to reuse with credit, under CC BY 4.0.
         </p>
         <p className="mt-3 leading-relaxed text-ink-soft">
           The idea was inspired by{" "}
@@ -219,15 +223,29 @@ export default function About() {
           Tell us what&apos;s wrong
         </h3>
         <p className="mt-2 leading-relaxed text-ink-soft">
-          Criticism is welcome when it comes with a reason.{" "}
+          Mistakes and criticism are welcome, and so are worries about privacy,
+          safety, or someone&apos;s work being used without credit.{" "}
           <a
             href={`${SITE.sourceUrl}/issues`}
             className="text-pen underline underline-offset-4"
           >
             Open an issue on GitHub
-          </a>{" "}
-          and say what&apos;s wrong, why it matters, and, if you can, how to fix
-          it. Every fix is recorded in the project&apos;s public history.
+          </a>
+          {SITE.contactEmail ? (
+            <>
+              {" "}
+              or write to{" "}
+              <a
+                href={`mailto:${SITE.contactEmail}`}
+                className="text-pen underline underline-offset-4"
+              >
+                {SITE.contactEmail}
+              </a>
+            </>
+          ) : null}
+          . Say what&apos;s wrong and why it matters, and how to fix it if you
+          can. A short note is fine. Every fix is recorded in the project&apos;s
+          public history.
         </p>
       </section>
 

@@ -100,6 +100,12 @@ export default async function LessonPage({ params }: Params) {
               </li>
             ))}
           </ul>
+          {lesson.checked && (
+            <p className="mt-3 text-sm text-ink-soft">
+              Facts and sources last checked: {lesson.checked}. Things change, so
+              check the source if it matters.
+            </p>
+          )}
         </section>
       )}
 

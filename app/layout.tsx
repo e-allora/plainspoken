@@ -109,7 +109,7 @@ export default function RootLayout({
                 href="/about#how-it-works"
                 className="text-pad/80 underline-offset-4 hover:underline"
               >
-                How this site works
+                Privacy and how this site works
               </Link>
               <a
                 href={SITE.sourceUrl}
@@ -118,11 +118,13 @@ export default function RootLayout({
                 Source
               </a>
             </div>
-            <p className="mt-6 text-xs leading-relaxed text-pad/60">
+            <p className="mt-6 max-w-2xl text-sm leading-relaxed text-pad/80">
               {creditLine()} Rewrites run on Claude Haiku, an AI model made by
               Anthropic, reached through OpenRouter. This site doesn&apos;t store
               your words, and we ask OpenRouter to send them only to providers
-              with a zero-data-retention policy.
+              with a zero-data-retention policy. Plainspoken is an independent
+              project. It isn&apos;t affiliated with or endorsed by Anthropic,
+              OpenAI, Google, or OpenRouter.
             </p>
           </div>
         </footer>

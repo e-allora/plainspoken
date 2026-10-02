@@ -191,3 +191,159 @@ test.describe("accessibility basics", () => {
     }
   });
 });
+
+test.describe("honesty at the point of use", () => {
+  test("says where the words go before they are sent", async ({ page }) => {
+    await page.goto("/");
+
+    const note = page.locator("#send-note");
+    await expect(note).toContainText("sent to an AI service");
+    await expect(note).toContainText("Leave out passwords, card and ID numbers");
+    await expect(note.getByRole("link", { name: "What happens to your words" })).toHaveAttribute(
+      "href",
+      "/about#how-it-works",
+    );
+    // Screen-reader users hear it when they reach the button.
+    await expect(page.getByRole("button", { name: "Mark up my prompt" })).toHaveAttribute(
+      "aria-describedby",
+      "send-note",
+    );
+  });
+
+  test("tells people the rewrite is AI-written, can be wrong, and where Open in sends it", async ({
+    page,
+  }) => {
+    await mockImprove(page);
+    await page.goto("/");
+
+    await page.getByLabel("What do you want the AI to do?").fill("email my landlord");
+    await page.getByRole("button", { name: "Mark up my prompt" }).click();
+
+    await expect(
+      page.getByText(/An AI wrote this rewrite, and it can get things wrong/),
+    ).toBeVisible();
+    await expect(page.getByText(/puts this prompt in the link/)).toBeVisible();
+  });
+
+  test("says on every page that it is independent of the companies it names", async ({ page }) => {
+    for (const path of ["/", "/learn", "/about"]) {
+      await page.goto(path);
+      await expect(page.getByRole("contentinfo")).toContainText(
+        "isn't affiliated with or endorsed by Anthropic, OpenAI, Google, or OpenRouter",
+      );
+    }
+  });
+
+  test("footer links to the privacy section by a name people look for", async ({ page }) => {
+    await page.goto("/");
+    await expect(
+      page.getByRole("contentinfo").getByRole("link", { name: "Privacy and how this site works" }),
+    ).toHaveAttribute("href", "/about#how-it-works");
+  });
+});
+
+test.describe("a pause before sending what shouldn't be sent", () => {
+  /** Mock the endpoint and count how many times the page actually calls it. */
+  async function countingMock(page: Page) {
+    const calls = { n: 0 };
+    await page.route("**/api/improve", (route) => {
+      calls.n += 1;
+      return route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(MOCK_RESULT),
+      });
+    });
+    return calls;
+  }
+
+  const box = (page: Page) => page.getByLabel("What do you want the AI to do?");
+  const submit = (page: Page) => page.getByRole("button", { name: "Mark up my prompt" });
+
+  test("holds back a Social Security number and sends only if the person says so", async ({
+    page,
+  }) => {
+    const calls = await countingMock(page);
+    await page.goto("/");
+    await box(page).fill("dispute a late fee, my SSN is 123-45-6789");
+    await submit(page).click();
+
+    const notice = page.getByRole("region", { name: /includes a Social Security number/ });
+    await expect(notice).toBeVisible();
+    await expect(notice).toBeFocused();
+    expect(calls.n).toBe(0);
+
+    await notice.getByRole("button", { name: "Send it anyway" }).click();
+    await expect(page.getByRole("heading", { name: "Your prompt, marked up" })).toBeVisible();
+    expect(calls.n).toBe(1);
+  });
+
+  test("'Edit what I wrote' goes back to the box without sending anything", async ({ page }) => {
+    const calls = await countingMock(page);
+    await page.goto("/");
+    await box(page).fill("pay with card 4242 4242 4242 4242 please");
+    await submit(page).click();
+
+    const notice = page.getByRole("region", { name: /includes a card number/ });
+    await notice.getByRole("button", { name: "Edit what I wrote" }).click();
+
+    await expect(notice).toBeHidden();
+    await expect(box(page)).toBeFocused();
+    expect(calls.n).toBe(0);
+  });
+
+  test("editing the text takes the notice away, and the check comes back for new text", async ({
+    page,
+  }) => {
+    const calls = await countingMock(page);
+    await page.goto("/");
+    await box(page).fill("my password is Summer2024!");
+    await submit(page).click();
+    const notice = page.getByRole("region", { name: /password or access key/ });
+    await expect(notice).toBeVisible();
+
+    await box(page).fill("my password is [my password]");
+    await expect(notice).toBeHidden();
+    await submit(page).click();
+    await expect(page.getByRole("heading", { name: "Your prompt, marked up" })).toBeVisible();
+    expect(calls.n).toBe(1);
+  });
+
+  test("offers support, with 988 and a worldwide directory, when the words suggest self-harm", async ({
+    page,
+  }) => {
+    const calls = await countingMock(page);
+    await page.goto("/");
+    await box(page).fill("I don't want to be here anymore and I need to tell my sister");
+    await submit(page).click();
+
+    const notice = page.getByRole("region", { name: "A quick pause before this goes anywhere" });
+    await expect(notice).toBeVisible();
+    await expect(notice.getByRole("link", { name: "call or text 988" })).toHaveAttribute(
+      "href",
+      "tel:988",
+    );
+    await expect(notice.getByRole("link", { name: "findahelpline.com" })).toHaveAttribute(
+      "href",
+      "https://findahelpline.com",
+    );
+    await expect(notice).toContainText("can't help with this part");
+    expect(calls.n).toBe(0);
+
+    // Nothing is forced: the person can carry on if the guess was wrong.
+    await notice.getByRole("button", { name: "Continue with the rewrite" }).click();
+    await expect(page.getByRole("heading", { name: "Your prompt, marked up" })).toBeVisible();
+    expect(calls.n).toBe(1);
+  });
+
+  test("does not interrupt an ordinary prompt", async ({ page }) => {
+    const calls = await countingMock(page);
+    await page.goto("/");
+    await box(page).fill("help me write an email to my landlord about my broken heater");
+    await submit(page).click();
+
+    await expect(page.getByRole("heading", { name: "Your prompt, marked up" })).toBeVisible();
+    await expect(page.getByRole("region", { name: /includes|quick pause/ })).toHaveCount(0);
+    expect(calls.n).toBe(1);
+  });
+});

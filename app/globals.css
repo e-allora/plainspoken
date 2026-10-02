@@ -20,10 +20,15 @@
   /* Ink */
   --color-ink: #191d2b;
   --color-ink-soft: #4d5468;
-  --color-ink-faint: #808799;
+  /* Darkened from #808799, which measured 2.9-3.2:1 on the desk and pad (WCAG AA
+     needs 4.5:1 for small text). This is 4.8:1 on the desk, 5.4:1 on the pad. */
+  --color-ink-faint: #5c6377;
 
   /* Editor's pen */
-  --color-pen: #c8402b;
+  /* Darkened from #c8402b, which measured 3.98:1 as link text on the desk and
+     4.47:1 behind the button's text. This is 4.7:1 on the desk, 5.25:1 for the
+     button. Still the editor's red pen; --color-pen-deep stays darker for hover. */
+  --color-pen: #b73825;
   --color-pen-deep: #a5301f;
   --color-pen-wash: #f7e2dd;
 

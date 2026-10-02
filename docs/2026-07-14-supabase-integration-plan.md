@@ -1,5 +1,12 @@
 # Supabase Integration Plan — 14 July 2026
 
+> **Superseded on 2026-10-01. Do not build this as written.** Plainspoken stores no
+> prompts or rewrites, by design, and tells visitors so on `/about` and in the
+> footer. The `prompt_logs` table below stores prompt text, which would break that
+> promise. Any future usage counting must store no text and be disclosed on
+> `/about` first. See `README.md` and `docs/2026-10-01-devils-advocate-review.md`.
+> The original is kept unchanged below as a record.
+
 **Status: not implemented. Blocked on a cloud project only the account holder can create.**
 
 The spec calls for Supabase Auth and Postgres usage logging. I built the site to work fully without them rather than stall, and left a marked insertion point. This document is the handover.
