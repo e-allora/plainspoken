@@ -57,6 +57,19 @@ it's routed only to providers with a zero-data-retention policy. The site itself
 no prompts and no rewrites. That's a design decision, not a missing feature. See
 [the 2026-10-01 review](docs/2026-10-01-devils-advocate-review.md).
 
+**Nothing a visitor types may reach a log.** Vercel keeps runtime logs, so the site's
+promise not to store people's words has to hold there too. The only two `console` calls in
+shipped code write a status number, an error code and an error name, never a message or a
+response body (an upstream error can echo the user's input, and a `JSON.parse` error quotes
+it). `lib/improve.test.ts` and `lib/improve.route.test.ts` fail if user text reaches console
+output. If you add logging, keep it that way.
+
+**A pause before sending.** In the browser, `lib/guard.ts` checks what was typed for card and
+ID numbers, passwords and keys, and for wording that may mean the person is struggling. If it
+finds something, the page says so and offers to edit or carry on, and for distress it gives
+988 (US) and findahelpline.com. It's a courtesy, not a security boundary: English only, tuned
+for precision, always overridable. Nothing it sees is stored or sent.
+
 ## Documentation
 
 Written as dated documents; the trail of changes lives in the record, not in edits.
@@ -64,10 +77,11 @@ Written as dated documents; the trail of changes lives in the record, not in edi
 | Document | Read it for |
 |---|---|
 | [Build report](docs/2026-07-14-build-report.md) | What was here, what got built, every decision and why |
-| [Architecture](docs/2026-07-14-architecture.md) | Request flow, API contract, CSS contracts, gotchas |
+| [Architecture](docs/2026-07-14-architecture.md) | Request flow, API contract, CSS contracts, gotchas. The model-routing section is historical (one model now) |
 | [Supabase plan](docs/2026-07-14-supabase-integration-plan.md) | The original logging spec. Superseded: prompts are not stored (see the review below) |
 | [Deployment](docs/2026-07-14-deployment.md) | Vercel, Cloudflare, headers, renaming |
 | [Review, 2026-10-01](docs/2026-10-01-devils-advocate-review.md) | Critical review: zero retention, single model, honesty rules, what's next |
+| [Ethics and risk audit, 2026-10-02](docs/2026-10-02-ethics-and-risk-audit.md) | Every claim the site makes and its evidence, what was fixed (logging, accessibility, lesson accuracy, dependencies, a pause before sending), what was left alone, and what couldn't be checked |
 
 The original brief is `Breakdown for the AGENTS.txt`. It names Prompt Cowboy
 (promptcowboy.ai) as the inspiration; Plainspoken's design and code are its own.
@@ -87,3 +101,5 @@ by design. The original brief's auth and usage logging are not planned.
 Code: MIT. See [LICENSE](LICENSE). Free to use, copy, and adapt.
 
 Writing (the lessons in `lib/lessons.ts` and the page text): [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Reuse it with credit.
+
+Fonts: Newsreader, Karla and IBM Plex Mono, each under the [SIL Open Font License 1.1](https://openfontlicense.org), served from this site's own origin through `next/font`.
