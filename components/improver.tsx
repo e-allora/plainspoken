@@ -106,8 +106,14 @@ export function Improver() {
 
       setResult(data as ImproveResult);
       setStatus("done");
+      // A script-requested smooth scroll ignores the CSS reduced-motion rule, so
+      // ask the browser directly.
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       requestAnimationFrame(() =>
-        resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+        resultRef.current?.scrollIntoView({
+          behavior: reduceMotion ? "auto" : "smooth",
+          block: "start",
+        }),
       );
     } catch {
       setError("We couldn't reach the server. Check your connection and try again.");
@@ -154,7 +160,7 @@ export function Improver() {
               rows={5}
               placeholder="Say it however it comes out. Messy is fine."
               aria-describedby="prompt-help"
-              className="on-rules block w-full resize-y border-0 bg-transparent p-0 pl-12 font-draft text-base text-ink placeholder:text-ink-faint/60 focus:outline-none"
+              className="on-rules block w-full resize-y border-0 bg-transparent p-0 pl-12 font-draft text-base text-ink placeholder:text-ink-faint focus:outline-none"
             />
           </div>
 
@@ -182,7 +188,7 @@ export function Improver() {
                   <button
                     type="button"
                     onClick={() => setPrompt(example)}
-                    className="rounded-full border border-desk-deep bg-pad/60 px-3 py-1.5 text-left text-xs text-ink-soft transition-colors hover:border-pen hover:text-pen"
+                    className="rounded-full border border-ink-faint bg-pad/60 px-3 py-1.5 text-left text-xs text-ink-soft transition-colors hover:border-pen hover:text-pen"
                   >
                     {example}
                   </button>
@@ -238,7 +244,7 @@ export function Improver() {
               id="category"
               value={category}
               onChange={(event) => setCategory(event.target.value)}
-              className="mt-1.5 rounded-sm border border-desk-deep bg-pad px-3 py-2 text-sm text-ink"
+              className="mt-1.5 rounded-sm border border-ink-faint bg-pad px-3 py-2 text-sm text-ink"
             >
               {CATEGORIES.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -409,6 +415,7 @@ function Result({
   onCopy: (text: string) => void;
   copied: boolean;
 }) {
+  const headingRef = useRef<HTMLHeadingElement>(null);
   const segments = useMemo(() => splitBlanks(result.improvedPrompt), [result.improvedPrompt]);
   const [values, setValues] = useState<Record<number, string>>({});
   const finalPrompt = fillBlanks(segments, values);
@@ -418,12 +425,18 @@ function Result({
   ).length;
   const encoded = encodeURIComponent(finalPrompt);
 
+  // Tell screen-reader users the result has arrived (the box they were in is
+  // still on screen), without scrolling again: the container already did.
+  useEffect(() => {
+    headingRef.current?.focus({ preventScroll: true });
+  }, []);
+
   return (
     <div className="settle mt-(--spacing-section)">
       <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:gap-10">
         {/* The clean copy. Serif, because it's finished work. */}
         <div>
-          <h3 className="font-display text-2xl font-semibold text-ink">
+          <h3 ref={headingRef} tabIndex={-1} className="font-display text-2xl font-semibold text-ink">
             Your prompt, marked up
           </h3>
           <p className="mt-1 text-sm text-ink-soft">
@@ -454,7 +467,7 @@ function Result({
                         }))
                       }
                       size={Math.max(segment.blank.length, (values[segment.index] ?? "").length, 4)}
-                      className="mx-0.5 inline-block max-w-full rounded-sm border-0 border-b-2 border-pen bg-pen-wash px-1 py-0 font-display text-lg text-ink placeholder:text-pen/70 focus:bg-pad focus:outline-none"
+                      className="mx-0.5 inline-block max-w-full rounded-sm border-0 border-b-2 border-pen bg-pen-wash px-1 py-0 font-display text-lg text-ink placeholder:text-pen-deep focus:bg-pad focus:outline-none"
                     />
                   ),
                 )}
