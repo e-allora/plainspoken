@@ -113,6 +113,43 @@ describe("improvePrompt request body", () => {
   });
 });
 
+describe("when the AI doesn't return a usable rewrite", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
+
+  function replyWith(content: string | null) {
+    vi.stubEnv("OPENROUTER_API_KEY", "test-key");
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ choices: [{ message: { content } }] }), { status: 200 }),
+      ),
+    );
+  }
+
+  const cases: Array<[string, string | null]> = [
+    ["a plain-text refusal", "I can't help with that request."],
+    ["JSON that isn't an object", "42"],
+    ["an empty rewrite", JSON.stringify({ improvedPrompt: "   ", improvements: [] })],
+    ["no content at all", null],
+  ];
+
+  it.each(cases)("says so plainly for %s, and doesn't tell the person to just retry", async (_label, content) => {
+    replyWith(content);
+    const error = await improvePrompt("help me write a letter").catch((e) => e);
+
+    expect(error).toBeInstanceOf(ImproveError);
+    expect(error.status).toBe(502);
+    expect(error.message).toContain("couldn't turn that into a rewrite");
+    expect(error.message).toContain("may not be willing to help");
+    expect(error.message).not.toMatch(/please try again/i);
+  });
+});
+
 describe("buildSystemPrompt", () => {
   it("adds no hint for 'something else'", () => {
     expect(buildSystemPrompt("general")).toBe(buildSystemPrompt());

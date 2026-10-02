@@ -100,6 +100,15 @@ export function buildSystemPrompt(explicitIntent?: Intent): string {
   return hint ? `${SYSTEM_PROMPT}\n\nThe user said this request is about: ${hint}.` : SYSTEM_PROMPT;
 }
 
+/**
+ * Shown when the AI answered but gave us nothing we can use. That includes the
+ * case where it declined to help: a refusal comes back as plain text, not the
+ * JSON we asked for. "Please try again" would be wrong there, and each retry
+ * counts against the person's hourly allowance.
+ */
+const NO_REWRITE =
+  "We couldn't turn that into a rewrite. Try wording it differently. If it keeps happening, the AI may not be willing to help with that request.";
+
 /** Strip a ```json fence if the model adds one despite instructions. */
 function stripFence(text: string): string {
   const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);
@@ -114,18 +123,18 @@ function parseModelJson(content: string): {
   try {
     parsed = JSON.parse(stripFence(content));
   } catch {
-    throw new ImproveError("The AI returned something we couldn't read. Please try again.", 502);
+    throw new ImproveError(NO_REWRITE, 502);
   }
 
   if (typeof parsed !== "object" || parsed === null) {
-    throw new ImproveError("The AI returned something we couldn't read. Please try again.", 502);
+    throw new ImproveError(NO_REWRITE, 502);
   }
 
   const record = parsed as Record<string, unknown>;
   const improvedPrompt = record.improvedPrompt;
 
   if (typeof improvedPrompt !== "string" || improvedPrompt.trim().length === 0) {
-    throw new ImproveError("The AI returned an empty prompt. Please try again.", 502);
+    throw new ImproveError(NO_REWRITE, 502);
   }
 
   const improvements: Improvement[] = Array.isArray(record.improvements)
@@ -243,7 +252,7 @@ export async function improvePrompt(
 
   const content = payload?.choices?.[0]?.message?.content;
   if (!content) {
-    throw new ImproveError("The AI returned an empty answer. Please try again.", 502);
+    throw new ImproveError(NO_REWRITE, 502);
   }
 
   const { improvedPrompt, improvements } = parseModelJson(content);

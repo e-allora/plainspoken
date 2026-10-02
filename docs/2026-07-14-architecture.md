@@ -1,5 +1,10 @@
 # Architecture — 14 July 2026
 
+> **Status note, 2026-10-02.** The "Model routing" section below is historical. Every
+> request now uses one model, `anthropic/claude-haiku-4.5`, and the "insertion point:
+> persist usage to Supabase" step was dropped because prompts are not stored. See
+> `README.md` ("Which model, and what happens to the words").
+
 How a request actually flows, and where each decision lives.
 
 ---
