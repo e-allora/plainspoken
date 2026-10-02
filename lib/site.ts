@@ -6,6 +6,12 @@
 export const SITE = {
   author: "Robert Sweetman",
   authorUrl: "", // e.g. a LinkedIn profile. Optional.
+  /**
+   * A project address people can write to if they can't use GitHub (most of the
+   * audience can't). Shown on /about when set. Use an address made for this
+   * site, not a personal one. Empty = not shown.
+   */
+  contactEmail: "" as string,
   url: "https://plainspoken.site",
   tagline: "Say it plainly. We'll make it land.",
   sourceUrl: "https://github.com/e-allora/plainspoken",

@@ -212,11 +212,23 @@ export function Improver() {
           <button
             type="submit"
             disabled={!canSubmit}
+            aria-describedby="send-note"
             className="rounded-sm bg-pen px-6 py-3 font-body text-base font-medium text-pad transition-all hover:bg-pen-deep disabled:cursor-not-allowed disabled:opacity-40"
           >
             {status === "loading" ? "Marking it up…" : "Mark up my prompt"}
           </button>
         </div>
+
+        {/* Said at the moment of sending, not only in the footer and on /about. */}
+        <p id="send-note" className="mt-4 max-w-prose text-sm leading-relaxed text-ink-soft">
+          Your words are sent to an AI service to be rewritten. This site
+          doesn&apos;t keep them, and we ask the service not to either. Leave
+          out passwords, card and ID numbers, and other people&apos;s private
+          details.{" "}
+          <Link href="/about#how-it-works" className="text-pen underline underline-offset-4">
+            What happens to your words
+          </Link>
+        </p>
       </form>
 
       <div ref={resultRef} className="scroll-mt-6">
@@ -282,6 +294,10 @@ function Result({
           <p className="mt-1 text-sm text-ink-soft">
             Copy this into ChatGPT, Claude, Gemini — wherever you were headed.
           </p>
+          <p className="mt-1 text-sm text-ink-soft">
+            An AI wrote this rewrite, and it can get things wrong. Read it
+            through before you use it.
+          </p>
 
           <div className="pad mt-4 rounded-sm p-5">
             <div className="pad-ruled pad-margin">
@@ -336,6 +352,10 @@ function Result({
               Open in Claude
             </a>
           </div>
+          <p className="mt-2 text-sm text-ink-soft">
+            “Open in” puts this prompt in the link, so that company receives it
+            under its own rules.
+          </p>
 
           {blanks > 0 && (
             <p className="mt-4 border-l-2 border-margin pl-3 text-sm text-ink-soft">

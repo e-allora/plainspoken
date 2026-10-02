@@ -191,3 +191,53 @@ test.describe("accessibility basics", () => {
     }
   });
 });
+
+test.describe("honesty at the point of use", () => {
+  test("says where the words go before they are sent", async ({ page }) => {
+    await page.goto("/");
+
+    const note = page.locator("#send-note");
+    await expect(note).toContainText("sent to an AI service");
+    await expect(note).toContainText("Leave out passwords, card and ID numbers");
+    await expect(note.getByRole("link", { name: "What happens to your words" })).toHaveAttribute(
+      "href",
+      "/about#how-it-works",
+    );
+    // Screen-reader users hear it when they reach the button.
+    await expect(page.getByRole("button", { name: "Mark up my prompt" })).toHaveAttribute(
+      "aria-describedby",
+      "send-note",
+    );
+  });
+
+  test("tells people the rewrite is AI-written, can be wrong, and where Open in sends it", async ({
+    page,
+  }) => {
+    await mockImprove(page);
+    await page.goto("/");
+
+    await page.getByLabel("What do you want the AI to do?").fill("email my landlord");
+    await page.getByRole("button", { name: "Mark up my prompt" }).click();
+
+    await expect(
+      page.getByText(/An AI wrote this rewrite, and it can get things wrong/),
+    ).toBeVisible();
+    await expect(page.getByText(/puts this prompt in the link/)).toBeVisible();
+  });
+
+  test("says on every page that it is independent of the companies it names", async ({ page }) => {
+    for (const path of ["/", "/learn", "/about"]) {
+      await page.goto(path);
+      await expect(page.getByRole("contentinfo")).toContainText(
+        "isn't affiliated with or endorsed by Anthropic, OpenAI, Google, or OpenRouter",
+      );
+    }
+  });
+
+  test("footer links to the privacy section by a name people look for", async ({ page }) => {
+    await page.goto("/");
+    await expect(
+      page.getByRole("contentinfo").getByRole("link", { name: "Privacy and how this site works" }),
+    ).toHaveAttribute("href", "/about#how-it-works");
+  });
+});
