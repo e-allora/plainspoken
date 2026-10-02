@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { countBlanks, fillBlanks, splitBlanks } from "@/lib/blanks";
+import { findConcerns, listWhat, type Concern } from "@/lib/guard";
 import type { Improvement, ImproveResult } from "@/lib/improve";
 import { MAX_PROMPT_LENGTH } from "@/lib/improve";
 
@@ -31,8 +32,13 @@ export function Improver() {
   const [result, setResult] = useState<ImproveResult | null>(null);
   const [error, setError] = useState<string>("");
   const [copied, setCopied] = useState(false);
+  // What lib/guard.ts found before sending, and the exact text the person chose
+  // to send anyway (so editing it brings the check back).
+  const [held, setHeld] = useState<Concern[]>([]);
+  const [okToSend, setOkToSend] = useState<string | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const heldRef = useRef<HTMLElement>(null);
 
   // Text typed before the page finished loading sits in the box but not in
   // state, leaving the counter at 0 and the button disabled (slow phones hit
@@ -42,6 +48,11 @@ export function Improver() {
     if (typedEarly) setPrompt(typedEarly);
   }, []);
 
+  // Move focus to the pause notice so keyboard and screen-reader users land on it.
+  useEffect(() => {
+    if (held.length > 0) heldRef.current?.focus();
+  }, [held]);
+
   const tooLong = prompt.length > MAX_PROMPT_LENGTH;
   const canSubmit = prompt.trim().length >= 3 && !tooLong && status !== "loading";
 
@@ -49,6 +60,31 @@ export function Improver() {
     event.preventDefault();
     if (!canSubmit) return;
 
+    // A courtesy pause for what shouldn't go to a third party. Not a gate: the
+    // person can always send anyway.
+    if (okToSend !== prompt) {
+      const concerns = findConcerns(prompt);
+      if (concerns.length > 0) {
+        setHeld(concerns);
+        return;
+      }
+    }
+
+    await send();
+  }
+
+  function sendAnyway() {
+    setOkToSend(prompt);
+    setHeld([]);
+    void send();
+  }
+
+  function editInstead() {
+    setHeld([]);
+    textareaRef.current?.focus();
+  }
+
+  async function send() {
     setStatus("loading");
     setError("");
     setCopied(false);
@@ -111,7 +147,10 @@ export function Improver() {
               id="prompt"
               name="prompt"
               value={prompt}
-              onChange={(event) => setPrompt(event.target.value)}
+              onChange={(event) => {
+                setPrompt(event.target.value);
+                if (held.length > 0) setHeld([]);
+              }}
               rows={5}
               placeholder="Say it however it comes out. Messy is fine."
               aria-describedby="prompt-help"
@@ -229,6 +268,10 @@ export function Improver() {
             What happens to your words
           </Link>
         </p>
+
+        {held.length > 0 && (
+          <HeldNotice concerns={held} panelRef={heldRef} onEdit={editInstead} onSend={sendAnyway} />
+        )}
       </form>
 
       <div ref={resultRef} className="scroll-mt-6">
@@ -251,6 +294,98 @@ export function Improver() {
             copied={copied}
           />
         )}
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Shown instead of sending when lib/guard.ts finds something worth a second
+ * thought. Two kinds: a number or secret that shouldn't go to a third party, and
+ * wording that may mean the person is struggling. Both end the same way: edit,
+ * or continue. Nothing here is stored or sent anywhere.
+ */
+function HeldNotice({
+  concerns,
+  panelRef,
+  onEdit,
+  onSend,
+}: {
+  concerns: Concern[];
+  panelRef: React.RefObject<HTMLElement | null>;
+  onEdit: () => void;
+  onSend: () => void;
+}) {
+  const distress = concerns.some((concern) => concern.kind === "distress");
+  const sensitive = concerns.flatMap((concern) => (concern.kind === "sensitive" ? [concern.what] : []));
+  const link = "text-pen underline underline-offset-4 hover:text-pen-deep";
+
+  return (
+    <section
+      ref={panelRef}
+      tabIndex={-1}
+      aria-labelledby="held-heading"
+      className={`mt-6 border-l-2 px-4 py-4 text-sm leading-relaxed text-ink ${
+        distress ? "border-margin bg-pad" : "border-pen bg-pen-wash"
+      }`}
+    >
+      <h3 id="held-heading" className="font-display text-xl font-semibold text-ink">
+        {distress
+          ? "A quick pause before this goes anywhere"
+          : `That looks like it includes ${listWhat(sensitive)}.`}
+      </h3>
+
+      {distress && (
+        <>
+          <p className="mt-2">
+            Some of what you wrote sounds like it might be about hurting
+            yourself. If that&apos;s true for you, you don&apos;t have to deal
+            with it alone.
+          </p>
+          <p className="mt-2">
+            In the US, you can{" "}
+            <a href="tel:988" className={link}>
+              call or text 988
+            </a>{" "}
+            (the Suicide &amp; Crisis Lifeline) any time, free. Elsewhere,{" "}
+            <a href="https://findahelpline.com" target="_blank" rel="noopener noreferrer" className={link}>
+              findahelpline.com
+            </a>{" "}
+            lists free, confidential lines by country. In an emergency, call
+            your local emergency number.
+          </p>
+          <p className="mt-2">
+            Plainspoken only rewrites prompts for AI assistants, so it
+            can&apos;t help with this part. If that&apos;s not what this is,
+            carry on.
+          </p>
+        </>
+      )}
+
+      {sensitive.length > 0 && (
+        <p className="mt-2">
+          {distress ? `It also looks like this includes ${listWhat(sensitive)}. ` : ""}
+          Everything you type here is sent to an AI service, and a real number
+          doesn&apos;t make the rewrite any better. Swap it for a placeholder
+          like [account number] and try again, or send it as it is.
+        </p>
+      )}
+
+      <div className="mt-4 flex flex-wrap gap-3">
+        <button
+          type="button"
+          onClick={onEdit}
+          className="rounded-sm bg-ink px-4 py-2.5 text-sm font-medium text-pad transition-colors hover:bg-ink-soft"
+        >
+          Edit what I wrote
+        </button>
+        <button
+          type="button"
+          onClick={onSend}
+          className="rounded-sm border border-ink-soft px-4 py-2.5 text-sm font-medium text-ink transition-colors hover:border-pen hover:text-pen"
+        >
+          {distress ? "Continue with the rewrite" : "Send it anyway"}
+        </button>
       </div>
     </section>
   );

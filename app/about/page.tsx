@@ -44,7 +44,9 @@ export default function About() {
             accounts, so nothing is tied to your name. Even so — don&apos;t
             paste in passwords, card numbers, or anything you&apos;d mind a
             stranger reading. That&apos;s good practice with any AI tool, not
-            just this one.
+            just this one. If what you type looks like a card number, a Social
+            Security number, or a password, the page checks with you before it
+            sends anything.
           </dd>
         </div>
 
