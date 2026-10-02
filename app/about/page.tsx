@@ -76,9 +76,9 @@ export default function About() {
             Can I trust what the AI tells me afterwards?
           </dt>
           <dd className="mt-2 leading-relaxed text-ink-soft">
-            Not blindly. A better prompt gets you a better answer, not a
-            guaranteed true one. These tools state wrong things with total
-            confidence. For anything that matters — medical, legal, money —
+            Not without checking. A better prompt gets you a better answer,
+            not a guaranteed true one. These tools can state wrong things with
+            total confidence. For anything that matters — medical, legal, money —
             check it against a real source or a real person.
           </dd>
         </div>

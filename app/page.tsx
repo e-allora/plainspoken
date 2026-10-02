@@ -44,8 +44,8 @@ export default function Home() {
               </h2>
               <p className="mt-4 leading-relaxed text-ink-soft">
                 When an AI gives you something vague and useless, it&apos;s
-                usually because it was missing something only you knew. It
-                doesn&apos;t ask. It guesses, and it guesses wrong.
+                usually because it was missing something only you knew. Often
+                it doesn&apos;t ask. It guesses, and the guess doesn&apos;t fit.
               </p>
             </div>
 
@@ -55,8 +55,9 @@ export default function Home() {
                   It doesn&apos;t know who you are
                 </dt>
                 <dd className="mt-1.5 text-sm leading-relaxed text-ink-soft">
-                  Your job, your situation, who&apos;s reading. So it writes for
-                  an average of everybody, which suits nobody.
+                  Unless you say, it doesn&apos;t know your job, your
+                  situation, or who&apos;s reading. So it writes for an average
+                  of everybody, which suits nobody.
                 </dd>
               </div>
               <div className="border-l-2 border-margin pl-4">
@@ -64,8 +65,8 @@ export default function Home() {
                   It fills gaps by inventing
                 </dt>
                 <dd className="mt-1.5 text-sm leading-relaxed text-ink-soft">
-                  Leave out the date and it&apos;ll make one up. Confidently.
-                  That&apos;s where most wasted time comes from.
+                  Leave out the date and it may make one up, and sound
+                  completely sure. It&apos;s a common reason answers need fixing.
                 </dd>
               </div>
               <div className="border-l-2 border-margin pl-4">
@@ -82,8 +83,8 @@ export default function Home() {
                   It waits to be told
                 </dt>
                 <dd className="mt-1.5 text-sm leading-relaxed text-ink-soft">
-                  It won&apos;t ask a clarifying question unless you invite one.
-                  Silence reads as &ldquo;go ahead and guess&rdquo;.
+                  It often won&apos;t ask a clarifying question unless you
+                  invite one. Silence reads as &ldquo;go ahead and guess&rdquo;.
                 </dd>
               </div>
             </dl>
@@ -105,8 +106,8 @@ export default function Home() {
               {LESSON_COUNT_TITLE} things worth knowing
             </h2>
             <p className="mt-2 max-w-lg text-ink-soft">
-              This tool is a crutch, and we&apos;d rather you didn&apos;t need
-              it. Each of these takes about two minutes.
+              This tool is training wheels, and we&apos;d rather you didn&apos;t
+              need it. Each of these takes about two minutes.
             </p>
           </div>
           <Link
