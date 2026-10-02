@@ -61,7 +61,10 @@ export async function POST(request: Request) {
     if (error instanceof ImproveError) {
       return NextResponse.json({ error: error.message }, { status: error.status });
     }
-    console.error("[improve] unexpected error", error);
+    // Log the error's name only. A message or stack can carry request text (a
+    // JSON.parse failure quotes the start of its input, for example), and
+    // runtime logs are kept. See the no-storage decision above.
+    console.error("[improve] unexpected error", error instanceof Error ? error.name : typeof error);
     return NextResponse.json({ error: "Something went wrong on our end." }, { status: 500 });
   }
 }

@@ -118,3 +118,78 @@ describe("buildSystemPrompt", () => {
     expect(buildSystemPrompt("general")).toBe(buildSystemPrompt());
   });
 });
+
+/**
+ * /about promises this site doesn't store people's words, and Vercel keeps
+ * runtime logs. So nothing a user typed may reach console output, even when
+ * OpenRouter echoes it back inside an error (moderation rejections include a
+ * fragment of the flagged input).
+ */
+describe("improvePrompt logging", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
+
+  const WORDS = "my SSN is 123-45-6789, and my landlord Dana Whitfield will not fix the heat";
+
+  function failWith(status: number, body: string) {
+    vi.stubEnv("OPENROUTER_API_KEY", "test-key");
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(body, { status })));
+    return vi.spyOn(console, "error").mockImplementation(() => {});
+  }
+
+  const logged = (spy: ReturnType<typeof failWith>) => spy.mock.calls.flat().map(String).join(" ");
+
+  it("never logs the user's words when the upstream error echoes them", async () => {
+    const spy = failWith(
+      403,
+      JSON.stringify({
+        error: {
+          code: 403,
+          message: `Input was flagged: ${WORDS}`,
+          metadata: { reasons: ["harassment"], flagged_input: WORDS.slice(0, 100) },
+        },
+      }),
+    );
+
+    await expect(improvePrompt(WORDS)).rejects.toBeInstanceOf(ImproveError);
+
+    const out = logged(spy);
+    expect(out).toContain("status=403");
+    expect(out).toContain("code=403");
+    for (const fragment of ["123-45-6789", "Dana", "Whitfield", "landlord", "flagged_input"]) {
+      expect(out).not.toContain(fragment);
+    }
+  });
+
+  it("logs only the status when the error body isn't JSON", async () => {
+    const spy = failWith(500, `<html>upstream said: ${WORDS}</html>`);
+
+    await expect(improvePrompt(WORDS)).rejects.toBeInstanceOf(ImproveError);
+
+    const out = logged(spy);
+    expect(out).toContain("status=500");
+    expect(out).not.toContain("Dana");
+    expect(out).not.toContain("upstream said");
+  });
+
+  it("drops an error code that isn't a short identifier", async () => {
+    const spy = failWith(400, JSON.stringify({ error: { code: `bad ${WORDS}` } }));
+
+    await expect(improvePrompt(WORDS)).rejects.toBeInstanceOf(ImproveError);
+
+    expect(logged(spy)).toContain("status=400");
+    expect(logged(spy)).not.toContain("Dana");
+  });
+
+  it("still tells the user something plain and safe", async () => {
+    failWith(429, JSON.stringify({ error: { code: 429, message: WORDS } }));
+
+    await expect(improvePrompt(WORDS)).rejects.toMatchObject({
+      status: 429,
+      message: "The AI service is busy right now. Please try again shortly.",
+    });
+  });
+});

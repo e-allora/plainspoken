@@ -148,6 +148,27 @@ const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 const REQUEST_TIMEOUT_MS = 45_000;
 
 /**
+ * What we log when OpenRouter answers with an error: the HTTP status and the
+ * error code, nothing else. The response body is deliberately never logged.
+ * Some provider errors (moderation rejections, for one) echo a fragment of the
+ * user's input back, and Vercel keeps runtime logs, which would break the
+ * promise on /about that this site doesn't store people's words.
+ */
+function describeUpstreamError(status: number, body: string): string {
+  let code = "";
+  try {
+    const raw = (JSON.parse(body) as { error?: { code?: unknown } })?.error?.code;
+    // Only a number or a short identifier-like string can pass; free text can't.
+    if (typeof raw === "number" || (typeof raw === "string" && /^[A-Za-z0-9_.-]{1,40}$/.test(raw))) {
+      code = String(raw);
+    }
+  } catch {
+    // Not JSON. The status alone is enough to debug with.
+  }
+  return code ? `status=${status} code=${code}` : `status=${status}`;
+}
+
+/**
  * Rewrite a prompt via OpenRouter. Any upstream failure is converted into an
  * ImproveError carrying a message that is safe to show a user.
  */
@@ -198,8 +219,12 @@ export async function improvePrompt(
   }
 
   if (!response.ok) {
-    // Log the upstream detail server-side; never leak it to the client.
-    console.error("[improve] OpenRouter error", response.status, await response.text().catch(() => ""));
+    // Log status and code only (see describeUpstreamError); never the body, and
+    // never anything to the client beyond the plain sentences below.
+    console.error(
+      "[improve] OpenRouter error",
+      describeUpstreamError(response.status, await response.text().catch(() => "")),
+    );
 
     if (response.status === 429) {
       throw new ImproveError("The AI service is busy right now. Please try again shortly.", 429);
